@@ -2,7 +2,7 @@
         xmlns="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.0"
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:schemaLocation="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.0 http://maven.apache.org/xsd/assembly-1.1.0.xsd">
-    <id></id>
+    <id>all-in-one</id>
     <formats>
         <format>tar.gz</format>
         <format>dir</format>
@@ -10,14 +10,14 @@
     <includeBaseDirectory>false</includeBaseDirectory>
     <fileSets>
         <fileSet>
-            <directory>transformer/target/datax/</directory>
+            <directory>transformer/target/datax-datax/</directory>
             <includes>
                 <include>**/*.*</include>
             </includes>
             <outputDirectory>datax</outputDirectory>
         </fileSet>
         <fileSet>
-            <directory>core/target/datax/</directory>
+            <directory>core/target/datax-datax/</directory>
             <includes>
                 <include>**/*.*</include>
             </includes>
@@ -26,63 +26,63 @@
 
         <!-- reader -->
         <fileSet>
-            <directory>mysqlreader/target/datax/</directory>
+            <directory>mysqlreader/target/datax-datax/</directory>
             <includes>
                 <include>**/*.*</include>
             </includes>
             <outputDirectory>datax</outputDirectory>
         </fileSet>
         <fileSet>
-            <directory>oceanbasev10reader/target/datax/</directory>
+            <directory>oceanbasev10reader/target/datax-datax/</directory>
             <includes>
                 <include>**/*.*</include>
             </includes>
             <outputDirectory>datax</outputDirectory>
         </fileSet>
         <fileSet>
-            <directory>obhbasereader/target/datax/</directory>
+            <directory>obhbasereader/target/datax-datax/</directory>
             <includes>
                 <include>**/*.*</include>
             </includes>
             <outputDirectory>datax</outputDirectory>
         </fileSet>
         <fileSet>
-            <directory>drdsreader/target/datax/</directory>
+            <directory>drdsreader/target/datax-datax/</directory>
             <includes>
                 <include>**/*.*</include>
             </includes>
             <outputDirectory>datax</outputDirectory>
         </fileSet>
         <fileSet>
-            <directory>oraclereader/target/datax/</directory>
+            <directory>oraclereader/target/datax-datax/</directory>
             <includes>
                 <include>**/*.*</include>
             </includes>
             <outputDirectory>datax</outputDirectory>
         </fileSet>
         <fileSet>
-            <directory>sqlserverreader/target/datax/</directory>
+            <directory>sqlserverreader/target/datax-datax/</directory>
             <includes>
                 <include>**/*.*</include>
             </includes>
             <outputDirectory>datax</outputDirectory>
         </fileSet>
         <fileSet>
-            <directory>postgresqlreader/target/datax/</directory>
+            <directory>postgresqlreader/target/datax-datax/</directory>
             <includes>
                 <include>**/*.*</include>
             </includes>
             <outputDirectory>datax</outputDirectory>
         </fileSet>
         <fileSet>
-            <directory>kingbaseesreader/target/datax/</directory>
+            <directory>kingbaseesreader/target/datax-datax/</directory>
             <includes>
                 <include>**/*.*</include>
             </includes>
             <outputDirectory>datax</outputDirectory>
         </fileSet>
         <fileSet>
-            <directory>rdbmsreader/target/datax/</directory>
+            <directory>rdbmsreader/target/datax-datax/</directory>
             <includes>
                 <include>**/*.*</include>
             </includes>
@@ -90,175 +90,175 @@
         </fileSet>
 
         <fileSet>
-            <directory>odpsreader/target/datax/</directory>
+            <directory>odpsreader/target/datax-datax/</directory>
             <includes>
                 <include>**/*.*</include>
             </includes>
             <outputDirectory>datax</outputDirectory>
         </fileSet>
         <fileSet>
-            <directory>otsreader/target/datax/</directory>
+            <directory>otsreader/target/datax-datax/</directory>
             <includes>
                 <include>**/*.*</include>
             </includes>
             <outputDirectory>datax</outputDirectory>
         </fileSet>
         <fileSet>
-            <directory>otsstreamreader/target/datax/</directory>
+            <directory>otsstreamreader/target/datax-datax/</directory>
             <includes>
                 <include>**/*.*</include>
             </includes>
             <outputDirectory>datax</outputDirectory>
         </fileSet>
         <fileSet>
-            <directory>txtfilereader/target/datax/</directory>
+            <directory>txtfilereader/target/datax-datax/</directory>
             <includes>
                 <include>**/*.*</include>
             </includes>
             <outputDirectory>datax</outputDirectory>
         </fileSet>
         <fileSet>
-            <directory>ossreader/target/datax/</directory>
+            <directory>ossreader/target/datax-datax/</directory>
             <includes>
                 <include>**/*.*</include>
             </includes>
             <outputDirectory>datax</outputDirectory>
         </fileSet>
         <fileSet>
-            <directory>mongodbreader/target/datax/</directory>
+            <directory>mongodbreader/target/datax-datax/</directory>
             <includes>
                 <include>**/*.*</include>
             </includes>
             <outputDirectory>datax</outputDirectory>
         </fileSet>
         <fileSet>
-            <directory>tdenginereader/target/datax/</directory>
+            <directory>tdenginereader/target/datax-datax/</directory>
             <includes>
                 <include>**/*.*</include>
             </includes>
             <outputDirectory>datax</outputDirectory>
         </fileSet>
         <fileSet>
-            <directory>streamreader/target/datax/</directory>
+            <directory>streamreader/target/datax-datax/</directory>
             <includes>
                 <include>**/*.*</include>
             </includes>
             <outputDirectory>datax</outputDirectory>
         </fileSet>
          <fileSet>
-            <directory>ftpreader/target/datax/</directory>
+            <directory>ftpreader/target/datax-datax/</directory>
             <includes>
                 <include>**/*.*</include>
             </includes>
             <outputDirectory>datax</outputDirectory>
         </fileSet>
         <fileSet>
-            <directory>clickhousereader/target/datax/</directory>
+            <directory>clickhousereader/target/datax-datax/</directory>
             <includes>
                 <include>**/*.*</include>
             </includes>
             <outputDirectory>datax</outputDirectory>
         </fileSet>
         <fileSet>
-            <directory>hdfsreader/target/datax/</directory>
+            <directory>hdfsreader/target/datax-datax/</directory>
             <includes>
                 <include>**/*.*</include>
             </includes>
             <outputDirectory>datax</outputDirectory>
         </fileSet>
         <fileSet>
-            <directory>hbase11xreader/target/datax/</directory>
+            <directory>hbase11xreader/target/datax-datax/</directory>
             <includes>
                 <include>**/*.*</include>
             </includes>
             <outputDirectory>datax</outputDirectory>
         </fileSet>
         <fileSet>
-            <directory>hbase094xreader/target/datax/</directory>
+            <directory>hbase094xreader/target/datax-datax/</directory>
             <includes>
                 <include>**/*.*</include>
             </includes>
             <outputDirectory>datax</outputDirectory>
         </fileSet>
         <fileSet>
-            <directory>opentsdbreader/target/datax/</directory>
+            <directory>opentsdbreader/target/datax-datax/</directory>
             <includes>
                 <include>**/*.*</include>
             </includes>
             <outputDirectory>datax</outputDirectory>
         </fileSet>
         <fileSet>
-            <directory>cassandrareader/target/datax/</directory>
+            <directory>cassandrareader/target/datax-datax/</directory>
             <includes>
                 <include>**/*.*</include>
             </includes>
             <outputDirectory>datax</outputDirectory>
         </fileSet>
         <fileSet>
-            <directory>gdbreader/target/datax/</directory>
+            <directory>gdbreader/target/datax-datax/</directory>
             <includes>
                 <include>**/*.*</include>
             </includes>
             <outputDirectory>datax</outputDirectory>
         </fileSet>
         <fileSet>
-            <directory>hbase11xsqlreader/target/datax/</directory>
+            <directory>hbase11xsqlreader/target/datax-datax/</directory>
             <includes>
                 <include>**/*.*</include>
             </includes>
             <outputDirectory>datax</outputDirectory>
         </fileSet>
         <fileSet>
-            <directory>hbase20xsqlreader/target/datax/</directory>
+            <directory>hbase20xsqlreader/target/datax-datax/</directory>
             <includes>
                 <include>**/*.*</include>
             </includes>
             <outputDirectory>datax</outputDirectory>
         </fileSet>
         <fileSet>
-            <directory>tsdbreader/target/datax/</directory>
+            <directory>tsdbreader/target/datax-datax/</directory>
             <includes>
                 <include>**/*.*</include>
             </includes>
             <outputDirectory>datax</outputDirectory>
         </fileSet>
         <fileSet>
-            <directory>datahubreader/target/datax/</directory>
+            <directory>datahubreader/target/datax-datax/</directory>
             <includes>
                 <include>**/*.*</include>
             </includes>
             <outputDirectory>datax</outputDirectory>
         </fileSet>
         <fileSet>
-            <directory>loghubreader/target/datax/</directory>
+            <directory>loghubreader/target/datax-datax/</directory>
             <includes>
                 <include>**/*.*</include>
             </includes>
             <outputDirectory>datax</outputDirectory>
         </fileSet>
         <fileSet>
-            <directory>starrocksreader/target/datax/</directory>
+            <directory>starrocksreader/target/datax-datax/</directory>
             <includes>
                 <include>**/*.*</include>
             </includes>
             <outputDirectory>datax</outputDirectory>
         </fileSet>
         <fileSet>
-            <directory>dorisreader/target/datax/</directory>
+            <directory>dorisreader/target/datax-datax/</directory>
             <includes>
                 <include>**/*.*</include>
             </includes>
             <outputDirectory>datax</outputDirectory>
         </fileSet>
         <fileSet>
-            <directory>sybasereader/target/datax/</directory>
+            <directory>sybasereader/target/datax-datax/</directory>
             <includes>
                 <include>**/*.*</include>
             </includes>
             <outputDirectory>datax</outputDirectory>
         </fileSet>
         <fileSet>
-            <directory>gaussdbreader/target/datax/</directory>
+            <directory>gaussdbreader/target/datax-datax/</directory>
             <includes>
                 <include>**/*.*</include>
             </includes>
@@ -267,301 +267,301 @@
 
         <!-- writer -->
         <fileSet>
-            <directory>mysqlwriter/target/datax/</directory>
+            <directory>mysqlwriter/target/datax-datax/</directory>
             <includes>
                 <include>**/*.*</include>
             </includes>
             <outputDirectory>datax</outputDirectory>
         </fileSet>
         <fileSet>
-            <directory>tdenginewriter/target/datax/</directory>
+            <directory>tdenginewriter/target/datax-datax/</directory>
             <includes>
                 <include>**/*.*</include>
             </includes>
             <outputDirectory>datax</outputDirectory>
         </fileSet>
         <fileSet>
-            <directory>starrockswriter/target/datax/</directory>
+            <directory>starrockswriter/target/datax-datax/</directory>
             <includes>
                 <include>**/*.*</include>
             </includes>
             <outputDirectory>datax</outputDirectory>
         </fileSet>
         <fileSet>
-            <directory>drdswriter/target/datax/</directory>
+            <directory>drdswriter/target/datax-datax/</directory>
             <includes>
                 <include>**/*.*</include>
             </includes>
             <outputDirectory>datax</outputDirectory>
         </fileSet>
         <fileSet>
-            <directory>odpswriter/target/datax/</directory>
+            <directory>odpswriter/target/datax-datax/</directory>
             <includes>
                 <include>**/*.*</include>
             </includes>
             <outputDirectory>datax</outputDirectory>
         </fileSet>
         <fileSet>
-            <directory>doriswriter/target/datax/</directory>
+            <directory>doriswriter/target/datax-datax/</directory>
             <includes>
                 <include>**/*.*</include>
             </includes>
             <outputDirectory>datax</outputDirectory>
         </fileSet>
         <fileSet>
-            <directory>txtfilewriter/target/datax/</directory>
+            <directory>txtfilewriter/target/datax-datax/</directory>
             <includes>
                 <include>**/*.*</include>
             </includes>
             <outputDirectory>datax</outputDirectory>
         </fileSet>
         <fileSet>
-            <directory>ftpwriter/target/datax/</directory>
+            <directory>ftpwriter/target/datax-datax/</directory>
             <includes>
                 <include>**/*.*</include>
             </includes>
             <outputDirectory>datax</outputDirectory>
         </fileSet>
         <fileSet>
-            <directory>osswriter/target/datax/</directory>
+            <directory>osswriter/target/datax-datax/</directory>
             <includes>
                 <include>**/*.*</include>
             </includes>
             <outputDirectory>datax</outputDirectory>
         </fileSet>
         <fileSet>
-            <directory>adswriter/target/datax/</directory>
+            <directory>adswriter/target/datax-datax/</directory>
             <includes>
                 <include>**/*.*</include>
             </includes>
             <outputDirectory>datax</outputDirectory>
         </fileSet>
         <fileSet>
-            <directory>streamwriter/target/datax/</directory>
+            <directory>streamwriter/target/datax-datax/</directory>
             <includes>
                 <include>**/*.*</include>
             </includes>
             <outputDirectory>datax</outputDirectory>
         </fileSet>
         <fileSet>
-            <directory>otswriter/target/datax/</directory>
+            <directory>otswriter/target/datax-datax/</directory>
             <includes>
                 <include>**/*.*</include>
             </includes>
             <outputDirectory>datax</outputDirectory>
         </fileSet>
         <fileSet>
-            <directory>mongodbwriter/target/datax/</directory>
+            <directory>mongodbwriter/target/datax-datax/</directory>
             <includes>
                 <include>**/*.*</include>
             </includes>
             <outputDirectory>datax</outputDirectory>
         </fileSet>
 		<fileSet>
-            <directory>oraclewriter/target/datax/</directory>
+            <directory>oraclewriter/target/datax-datax/</directory>
             <includes>
                 <include>**/*.*</include>
             </includes>
             <outputDirectory>datax</outputDirectory>
         </fileSet>
         <fileSet>
-            <directory>sqlserverwriter/target/datax/</directory>
+            <directory>sqlserverwriter/target/datax-datax/</directory>
             <includes>
                 <include>**/*.*</include>
             </includes>
             <outputDirectory>datax</outputDirectory>
         </fileSet>
 		<fileSet>
-            <directory>postgresqlwriter/target/datax/</directory>
+            <directory>postgresqlwriter/target/datax-datax/</directory>
             <includes>
                 <include>**/*.*</include>
             </includes>
             <outputDirectory>datax</outputDirectory>
         </fileSet>
         <fileSet>
-            <directory>kingbaseeswriter/target/datax/</directory>
+            <directory>kingbaseeswriter/target/datax-datax/</directory>
             <includes>
                 <include>**/*.*</include>
             </includes>
             <outputDirectory>datax</outputDirectory>
         </fileSet>
         <fileSet>
-            <directory>rdbmswriter/target/datax/</directory>
+            <directory>rdbmswriter/target/datax-datax/</directory>
             <includes>
                 <include>**/*.*</include>
             </includes>
             <outputDirectory>datax</outputDirectory>
         </fileSet>
         <fileSet>
-            <directory>ocswriter/target/datax/</directory>
+            <directory>ocswriter/target/datax-datax/</directory>
             <includes>
                 <include>**/*.*</include>
             </includes>
             <outputDirectory>datax</outputDirectory>
         </fileSet>
         <fileSet>
-            <directory>hdfswriter/target/datax/</directory>
+            <directory>hdfswriter/target/datax-datax/</directory>
             <includes>
                 <include>**/*.*</include>
             </includes>
             <outputDirectory>datax</outputDirectory>
         </fileSet>
         <fileSet>
-            <directory>hbase11xwriter/target/datax/</directory>
+            <directory>hbase11xwriter/target/datax-datax/</directory>
             <includes>
                 <include>**/*.*</include>
             </includes>
             <outputDirectory>datax</outputDirectory>
         </fileSet>
         <fileSet>
-            <directory>hbase094xwriter/target/datax/</directory>
+            <directory>hbase094xwriter/target/datax-datax/</directory>
             <includes>
                 <include>**/*.*</include>
             </includes>
             <outputDirectory>datax</outputDirectory>
         </fileSet>
         <fileSet>
-            <directory>hbase11xsqlwriter/target/datax/</directory>
+            <directory>hbase11xsqlwriter/target/datax-datax/</directory>
             <includes>
                 <include>**/*.*</include>
             </includes>
             <outputDirectory>datax</outputDirectory>
         </fileSet>
         <fileSet>
-            <directory>elasticsearchwriter/target/datax/</directory>
+            <directory>elasticsearchwriter/target/datax-datax/</directory>
             <includes>
                 <include>**/*.*</include>
             </includes>
             <outputDirectory>datax</outputDirectory>
         </fileSet>
         <fileSet>
-            <directory>hbase20xsqlwriter/target/datax/</directory>
+            <directory>hbase20xsqlwriter/target/datax-datax/</directory>
             <includes>
                 <include>**/*.*</include>
             </includes>
             <outputDirectory>datax</outputDirectory>
         </fileSet>
         <fileSet>
-            <directory>tsdbwriter/target/datax/</directory>
+            <directory>tsdbwriter/target/datax-datax/</directory>
             <includes>
                 <include>**/*.*</include>
             </includes>
             <outputDirectory>datax</outputDirectory>
         </fileSet>
         <fileSet>
-            <directory>adbpgwriter/target/datax/</directory>
+            <directory>adbpgwriter/target/datax-datax/</directory>
             <includes>
                 <include>**/*.*</include>
             </includes>
             <outputDirectory>datax</outputDirectory>
         </fileSet>
         <fileSet>
-            <directory>cassandrawriter/target/datax/</directory>
+            <directory>cassandrawriter/target/datax-datax/</directory>
             <includes>
                 <include>**/*.*</include>
             </includes>
             <outputDirectory>datax</outputDirectory>
         </fileSet>
         <fileSet>
-            <directory>clickhousewriter/target/datax/</directory>
+            <directory>clickhousewriter/target/datax-datax/</directory>
             <includes>
                 <include>**/*.*</include>
             </includes>
             <outputDirectory>datax</outputDirectory>
         </fileSet>
         <fileSet>
-            <directory>databendwriter/target/datax/</directory>
+            <directory>databendwriter/target/datax-datax/</directory>
             <includes>
                 <include>**/*.*</include>
             </includes>
             <outputDirectory>datax</outputDirectory>
         </fileSet>
         <fileSet>
-            <directory>oscarwriter/target/datax/</directory>
+            <directory>oscarwriter/target/datax-datax/</directory>
             <includes>
                 <include>**/*.*</include>
             </includes>
             <outputDirectory>datax</outputDirectory>
         </fileSet>
         <fileSet>
-            <directory>oceanbasev10writer/target/datax/</directory>
+            <directory>oceanbasev10writer/target/datax-datax/</directory>
             <includes>
                 <include>**/*.*</include>
             </includes>
             <outputDirectory>datax</outputDirectory>
         </fileSet>
         <fileSet>
-            <directory>obhbasewriter/target/datax/</directory>
+            <directory>obhbasewriter/target/datax-datax/</directory>
             <includes>
                 <include>**/*.*</include>
             </includes>
             <outputDirectory>datax</outputDirectory>
         </fileSet>
         <fileSet>
-            <directory>gdbwriter/target/datax/</directory>
+            <directory>gdbwriter/target/datax-datax/</directory>
             <includes>
                 <include>**/*.*</include>
             </includes>
             <outputDirectory>datax</outputDirectory>
         </fileSet>
         <fileSet>
-            <directory>kuduwriter/target/datax/</directory>
+            <directory>kuduwriter/target/datax-datax/</directory>
             <includes>
                 <include>**/*.*</include>
             </includes>
             <outputDirectory>datax</outputDirectory>
         </fileSet>
         <fileSet>
-            <directory>hologresjdbcwriter/target/datax/</directory>
+            <directory>hologresjdbcwriter/target/datax-datax/</directory>
             <includes>
                 <include>**/*.*</include>
             </includes>
             <outputDirectory>datax</outputDirectory>
         </fileSet>
         <fileSet>
-            <directory>datahubwriter/target/datax/</directory>
+            <directory>datahubwriter/target/datax-datax/</directory>
             <includes>
                 <include>**/*.*</include>
             </includes>
             <outputDirectory>datax</outputDirectory>
         </fileSet>
         <fileSet>
-            <directory>loghubwriter/target/datax/</directory>
+            <directory>loghubwriter/target/datax-datax/</directory>
             <includes>
                 <include>**/*.*</include>
             </includes>
             <outputDirectory>datax</outputDirectory>
         </fileSet>
         <fileSet>
-            <directory>selectdbwriter/target/datax/</directory>
+            <directory>selectdbwriter/target/datax-datax/</directory>
             <includes>
                 <include>**/*.*</include>
             </includes>
             <outputDirectory>datax</outputDirectory>
         </fileSet>
         <fileSet>
-            <directory>neo4jwriter/target/datax/</directory>
+            <directory>neo4jwriter/target/datax-datax/</directory>
             <includes>
                 <include>**/*.*</include>
             </includes>
             <outputDirectory>datax</outputDirectory>
         </fileSet>
         <fileSet>
-            <directory>sybasewriter/target/datax/</directory>
+            <directory>sybasewriter/target/datax-datax/</directory>
             <includes>
                 <include>**/*.*</include>
             </includes>
             <outputDirectory>datax</outputDirectory>
         </fileSet>
         <fileSet>
-            <directory>gaussdbwriter/target/datax/</directory>
+            <directory>gaussdbwriter/target/datax-datax/</directory>
             <includes>
                 <include>**/*.*</include>
             </includes>
             <outputDirectory>datax</outputDirectory>
         </fileSet>
         <fileSet>
-            <directory>milvuswriter/target/datax/</directory>
+            <directory>milvuswriter/target/datax-datax/</directory>
             <includes>
                 <include>**/*.*</include>
             </includes>
