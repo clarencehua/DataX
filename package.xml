@@ -264,6 +264,34 @@
             </includes>
             <outputDirectory>datax</outputDirectory>
         </fileSet>
+        <fileSet>
+            <directory>nfsreader/target/datax-datax/</directory>
+            <includes>
+                <include>**/*.*</include>
+            </includes>
+            <outputDirectory>datax</outputDirectory>
+        </fileSet>
+        <fileSet>
+            <directory>glusterfsreader/target/datax-datax/</directory>
+            <includes>
+                <include>**/*.*</include>
+            </includes>
+            <outputDirectory>datax</outputDirectory>
+        </fileSet>
+        <fileSet>
+            <directory>s3reader/target/datax-datax/</directory>
+            <includes>
+                <include>**/*.*</include>
+            </includes>
+            <outputDirectory>datax</outputDirectory>
+        </fileSet>
+        <fileSet>
+            <directory>apireader/target/datax-datax/</directory>
+            <includes>
+                <include>**/*.*</include>
+            </includes>
+            <outputDirectory>datax</outputDirectory>
+        </fileSet>
 
         <!-- writer -->
         <fileSet>
@@ -562,6 +590,27 @@
         </fileSet>
         <fileSet>
             <directory>milvuswriter/target/datax-datax/</directory>
+            <includes>
+                <include>**/*.*</include>
+            </includes>
+            <outputDirectory>datax</outputDirectory>
+        </fileSet>
+        <fileSet>
+            <directory>nfswriter/target/datax-datax/</directory>
+            <includes>
+                <include>**/*.*</include>
+            </includes>
+            <outputDirectory>datax</outputDirectory>
+        </fileSet>
+        <fileSet>
+            <directory>glusterfswriter/target/datax-datax/</directory>
+            <includes>
+                <include>**/*.*</include>
+            </includes>
+            <outputDirectory>datax</outputDirectory>
+        </fileSet>
+        <fileSet>
+            <directory>s3writer/target/datax-datax/</directory>
             <includes>
                 <include>**/*.*</include>
             </includes>
