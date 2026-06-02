@@ -3,10 +3,16 @@
   "parameter": {
     "endpoint": "http://127.0.0.1:9000",
     "bucket": "test-bucket",
-    "accessKey": "ak-xxx",
-    "secretKey": "sk-xxx",
-    "prefix": "/test",
+    "accessKey": "minioadmin",
+    "secretKey": "minioadmin",
+    "object": "mysql_data/result",
     "region": "us-east-1",
-    "destPath": "/data/dest"
+    "fieldDelimiter": ",",
+    "encoding": "utf-8",
+    "nullFormat": "null",
+    "dateFormat": "",
+    "maxFileSize": 1024,
+    "writeMode": "truncate",
+    "suffix": ".csv"
   }
 }
