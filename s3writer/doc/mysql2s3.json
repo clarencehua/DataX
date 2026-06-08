@@ -45,6 +45,7 @@
         "writer": {
           "name": "s3writer",
           "parameter": {
+            "mode": "upload",
             "endpoint": "http://127.0.0.1:9000",
             "bucket": "test-bucket",
             "accessKey": "minioadmin",
@@ -52,6 +53,10 @@
             "object": "mysql_data/result",
             "region": "us-east-1",
             "fieldDelimiter": ",",
+            "encoding": "utf-8",
+            "nullFormat": "null",
+            "dateFormat": "",
+            "maxFileSize": 1024,
             "writeMode": "truncate",
             "suffix": ".csv"
           }
