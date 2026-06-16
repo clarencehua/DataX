@@ -30,18 +30,16 @@ public class SchemaManager {
             ResultSet rs = stmt.executeQuery("select database()");
             String dbname = null;
             while (rs.next()) {
-                dbname = rs.getString("database()");
+                dbname = rs.getString(1);
             }
             if (dbname == null)
                 throw DataXException.asDataXException(TDengineWriterErrorCode.RUNTIME_EXCEPTION,
                         "Database not specified or available");
 
-            rs = stmt.executeQuery("show databases");
+            rs = stmt.executeQuery(
+                "select `precision` from information_schema.ins_databases where name='" + dbname + "'");
             while (rs.next()) {
-                String name = rs.getString("name");
-                if (!name.equalsIgnoreCase(dbname))
-                    continue;
-                String precision = rs.getString("precision");
+                String precision = rs.getString(1);
                 switch (precision) {
                     case "ns":
                         this.precision = TimestampPrecision.NANOSEC;
@@ -64,20 +62,34 @@ public class SchemaManager {
         Map<String, TableMeta> tableMetas = new HashMap();
 
         try (Statement stmt = conn.createStatement()) {
-            ResultSet rs = stmt.executeQuery("show stables");
-            while (rs.next()) {
-                TableMeta tableMeta = buildSupTableMeta(rs);
-                if (!tables.contains(tableMeta.tbname))
-                    continue;
-                tableMetas.put(tableMeta.tbname, tableMeta);
+            Set<String> stables = new HashSet<>();
+            try {
+                ResultSet rs = stmt.executeQuery("show stables");
+                while (rs.next()) {
+                    stables.add(rs.getString(1));
+                }
+            } catch (SQLException e) {
+                LOG.warn("show stables failed: {}", e.getMessage());
             }
 
-            rs = stmt.executeQuery("show tables");
+            ResultSet rs = stmt.executeQuery("show tables");
             while (rs.next()) {
-                TableMeta tableMeta = buildSubTableMeta(rs);
-                if (!tables.contains(tableMeta.tbname))
-                    continue;
-                tableMetas.put(tableMeta.tbname, tableMeta);
+                String tbname = rs.getString(1);
+                if (!tables.contains(tbname)) continue;
+                TableMeta tableMeta = new TableMeta();
+                tableMeta.tbname = tbname;
+                tableMeta.tableType = TableType.NML_TABLE;
+                tableMeta.columns = 0;
+                tableMetas.put(tbname, tableMeta);
+            }
+
+            for (String tbname : tables) {
+                if (stables.contains(tbname) && !tableMetas.containsKey(tbname)) {
+                    TableMeta tableMeta = new TableMeta();
+                    tableMeta.tbname = tbname;
+                    tableMeta.tableType = TableType.SUP_TABLE;
+                    tableMetas.put(tbname, tableMeta);
+                }
             }
 
             for (String tbname : tables) {
@@ -86,7 +98,29 @@ public class SchemaManager {
                 }
             }
         } catch (SQLException e) {
-            throw DataXException.asDataXException(TDengineWriterErrorCode.RUNTIME_EXCEPTION, e.getMessage());
+            // Fallback: TDengine 2.x format for show stables / show tables
+            LOG.warn("show tables with column index failed: {}", e.getMessage());
+            try (Statement stmt = conn.createStatement()) {
+                ResultSet rs = stmt.executeQuery("show stables");
+                while (rs.next()) {
+                    TableMeta tableMeta = buildSupTableMeta(rs);
+                    if (!tables.contains(tableMeta.tbname)) continue;
+                    tableMetas.put(tableMeta.tbname, tableMeta);
+                }
+                rs = stmt.executeQuery("show tables");
+                while (rs.next()) {
+                    TableMeta tableMeta = buildSubTableMeta(rs);
+                    if (!tables.contains(tableMeta.tbname)) continue;
+                    tableMetas.put(tableMeta.tbname, tableMeta);
+                }
+                for (String tbname : tables) {
+                    if (!tableMetas.containsKey(tbname)) {
+                        throw DataXException.asDataXException(TDengineWriterErrorCode.RUNTIME_EXCEPTION, "table metadata of " + tbname + " is empty!");
+                    }
+                }
+            } catch (SQLException e2) {
+                throw DataXException.asDataXException(TDengineWriterErrorCode.RUNTIME_EXCEPTION, e2.getMessage());
+            }
         }
         return tableMetas;
     }
@@ -161,10 +195,10 @@ public class SchemaManager {
 
     private ColumnMeta buildColumnMeta(ResultSet rs, boolean isPrimaryKey) throws SQLException {
         ColumnMeta columnMeta = new ColumnMeta();
-        columnMeta.field = rs.getString("Field");
-        columnMeta.type = rs.getString("Type");
-        columnMeta.length = rs.getInt("Length");
-        columnMeta.note = rs.getString("Note");
+        columnMeta.field = rs.getString("field");
+        columnMeta.type = rs.getString("type");
+        columnMeta.length = rs.getInt("length");
+        columnMeta.note = rs.getString("note");
         columnMeta.isTag = columnMeta.note != null && columnMeta.note.equals("TAG");
         columnMeta.isPrimaryKey = isPrimaryKey;
         return columnMeta;
@@ -179,9 +213,9 @@ public class SchemaManager {
             List<String> tags = new ArrayList<>();
             ResultSet rs = stmt.executeQuery("describe " + table);
             while (rs.next()) {
-                String note = rs.getString("Note");
+                String note = rs.getString("note");
                 if ("TAG".equals(note)) {
-                    tags.add(rs.getString("Field"));
+                    tags.add(rs.getString("field"));
                 }
             }
             // select distinct tbname, t1, t2 from stb

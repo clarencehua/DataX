@@ -32,7 +32,7 @@ public class CassandraReader extends Reader {
       String password = jobConfig.getString(Key.PASSWORD);
       String hosts = jobConfig.getString(Key.HOST);
       Integer port = jobConfig.getInt(Key.PORT,9042);
-      boolean useSSL = jobConfig.getBool(Key.USESSL);
+      boolean useSSL = jobConfig.getBool(Key.USESSL, false);
 
       if ((username != null) && !username.isEmpty()) {
         Cluster.Builder clusterBuilder = Cluster.builder().withCredentials(username, password)
@@ -74,7 +74,7 @@ public class CassandraReader extends Reader {
       String password = taskConfig.getString(Key.PASSWORD);
       String hosts = taskConfig.getString(Key.HOST);
       Integer port = taskConfig.getInt(Key.PORT);
-      boolean useSSL = taskConfig.getBool(Key.USESSL);
+      boolean useSSL = taskConfig.getBool(Key.USESSL, false);
       String keyspace = taskConfig.getString(Key.KEYSPACE);
       this.columnMeta = taskConfig.getList(Key.COLUMN,String.class);
       columnNumber = columnMeta.size();

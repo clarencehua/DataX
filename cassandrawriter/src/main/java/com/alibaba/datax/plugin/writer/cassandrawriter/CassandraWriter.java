@@ -159,7 +159,7 @@ public class CassandraWriter extends Writer {
       String password = taskConfig.getString(Key.PASSWORD);
       String hosts = taskConfig.getString(Key.HOST);
       Integer port = taskConfig.getInt(Key.PORT,9042);
-      boolean useSSL = taskConfig.getBool(Key.USESSL);
+      boolean useSSL = taskConfig.getBool(Key.USESSL, false);
       String keyspace = taskConfig.getString(Key.KEYSPACE);
       String table = taskConfig.getString(Key.TABLE);
       batchSize = taskConfig.getLong(Key.BATCH_SIZE,1);
