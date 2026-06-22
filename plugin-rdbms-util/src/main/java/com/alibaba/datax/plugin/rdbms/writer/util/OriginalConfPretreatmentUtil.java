@@ -58,11 +58,10 @@ public final class OriginalConfPretreatmentUtil {
         for (int i = 0, len = connections.size(); i < len; i++) {
             Configuration connConf = Configuration.from(connections.get(i).toString());
 
-            List<String> jdbcUrls = connConf.getList(Key.JDBC_URL, String.class);
-            if (null == jdbcUrls || jdbcUrls.isEmpty()) {
+            String jdbcUrl = connConf.getString(Key.JDBC_URL);
+            if (StringUtils.isBlank(jdbcUrl)) {
                 throw DataXException.asDataXException(DBUtilErrorCode.REQUIRED_VALUE, "您未配置的写入数据库表的 jdbcUrl.");
             }
-            String jdbcUrl = jdbcUrls.get(0);
 
             jdbcUrl = DATABASE_TYPE.appendJDBCSuffixForWriter(jdbcUrl);
             originalConfig.set(String.format("%s[%d].%s", Constant.CONN_MARK, i, Key.JDBC_URL),
