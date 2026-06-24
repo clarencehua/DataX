@@ -24,7 +24,7 @@ import com.alibaba.fastjson2.JSONObject;
 
 import com.google.common.base.Joiner;
 import com.google.common.base.Strings;
-import com.mongodb.MongoClient;
+import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoCursor;
 import com.mongodb.client.MongoDatabase;

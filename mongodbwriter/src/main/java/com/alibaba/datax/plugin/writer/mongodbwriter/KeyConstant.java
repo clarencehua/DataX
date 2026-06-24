@@ -22,6 +22,10 @@ public class KeyConstant {
      */
     public static final String MONGO_USER_PASSWORD = "userPassword";
     /**
+     * mongodb 认证数据库
+     */
+    public static final String MONGO_AUTHDB = "authDb";
+    /**
      * mongodb 数据库名
      */
     public static final String MONGO_DB_NAME = "dbName";

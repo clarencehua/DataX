@@ -3,7 +3,7 @@
 ## 1. Start MongoDB Docker Container
 
 ```bash
-docker run -d --name mongodb -p 27017:27017 mongo:4.4
+docker run -d --name mongodb -p 27017:27017 mongo:8.0
 ```
 
 Verify:
@@ -14,7 +14,7 @@ docker logs mongodb 2>&1 | grep "Waiting for connections"
 ## 2. Create Test Data
 
 ```bash
-docker exec -i mongodb mongo --quiet <<'EOF'
+docker exec -i mongodb mongosh --quiet <<'EOF'
 use test_db;
 db.test_collection.insertMany([
   { "name": "Alice", "age": 25, "score": 88.5, "active": true },
@@ -45,6 +45,9 @@ Create `/tmp/job_mongodbreader.json`:
                     "name": "mongodbreader",
                     "parameter": {
                         "address": ["127.0.0.1:27017"],
+                        "userName": "admin",
+                        "userPassword": "admin123",
+                        "authDb": "admin",
                         "dbName": "test_db",
                         "collectionName": "test_collection",
                         "column": [
@@ -133,7 +136,7 @@ Expected output (5 records):
 docker run -d --name mongodb-auth \
   -e MONGO_INITDB_ROOT_USERNAME=admin \
   -e MONGO_INITDB_ROOT_PASSWORD=admin123 \
-  -p 27018:27017 mongo:4.4
+  -p 27018:27017 mongo:8.0
 ```
 
 Job config with auth:
@@ -169,7 +172,7 @@ docker stop mongodb && docker rm mongodb
 
 ## 7. Notes
 
-- The Java driver version is 3.2.2 (compatible with MongoDB 3.x–4.x). For MongoDB 5+, you may need to update the driver version in `pom.xml`.
+- The Java driver version is 4.11.1 (mongodb-driver-sync), compatible with MongoDB 8.0+.
 - The `splitter` field only works for columns declared with `"type": "array"` or `"type": "document.array"`.
 - The `_id` field returned by MongoDB is an `ObjectId`. If you need it as a string, declare `"type": "string"`.
 - The reader splits the collection into shards using `splitVector` command (or `skip/limit` fallback) for parallel reading.
