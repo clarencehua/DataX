@@ -135,6 +135,7 @@
         <module>sybasewriter</module>
         <module>neo4jwriter</module>
         <module>milvuswriter</module>
+        <module>lancedbwriter</module>
         <module>nfswriter</module>
         <module>glusterfswriter</module>
         <module>s3writer</module>

@@ -1,0 +1,12 @@
+{
+    "name": "lancedbwriter",
+    "parameter": {
+        "apiKey": "",
+        "endpoint": "",
+        "database": "",
+        "table": "",
+        "namespace": "",
+        "column": [],
+        "batchSize": 100
+    }
+}

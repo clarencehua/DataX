@@ -1,0 +1,6 @@
+{
+    "name": "lancedbwriter",
+    "class": "com.alibaba.datax.plugin.writer.lancedbwriter.LanceDbWriter",
+    "description": "useScene: prod. mechanism: via lancedb rest api connect lancedb write data concurrent.",
+    "developer": "opencode"
+}
