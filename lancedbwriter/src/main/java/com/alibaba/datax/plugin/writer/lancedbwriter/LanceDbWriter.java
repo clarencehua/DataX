@@ -21,18 +21,15 @@ public class LanceDbWriter extends Writer {
         @Override
         public void init() {
             this.originalConfig = super.getPluginJobConf();
-            String uri = originalConfig.getString(KeyConstant.URI);
-            this.localMode = StringUtils.isNotBlank(uri);
+            String mode = originalConfig.getString(KeyConstant.MODE, KeyConstant.MODE_CLOUD);
+            this.localMode = KeyConstant.MODE_LOCAL.equalsIgnoreCase(mode);
             if (localMode) {
-                if (StringUtils.isBlank(uri)) {
-                    throw DataXException.asDataXException(LanceDbWriterErrorCode.REQUIRED_VALUE,
-                            "uri is required in local mode");
-                }
+                originalConfig.getNecessaryValue(KeyConstant.URI, LanceDbWriterErrorCode.REQUIRED_VALUE);
             } else {
                 originalConfig.getNecessaryValue(KeyConstant.API_KEY, LanceDbWriterErrorCode.REQUIRED_VALUE);
                 originalConfig.getNecessaryValue(KeyConstant.DATABASE, LanceDbWriterErrorCode.REQUIRED_VALUE);
+                originalConfig.getNecessaryValue(KeyConstant.TABLE, LanceDbWriterErrorCode.REQUIRED_VALUE);
             }
-            originalConfig.getNecessaryValue(KeyConstant.TABLE, LanceDbWriterErrorCode.REQUIRED_VALUE);
             originalConfig.getNecessaryValue(KeyConstant.COLUMN, LanceDbWriterErrorCode.REQUIRED_VALUE);
         }
 
@@ -79,8 +76,9 @@ public class LanceDbWriter extends Writer {
         public void init() {
             log.info("Initializing LanceDB writer");
             Configuration writerSliceConfig = this.getPluginJobConf();
+            String mode = writerSliceConfig.getString(KeyConstant.MODE, KeyConstant.MODE_CLOUD);
+            this.localMode = KeyConstant.MODE_LOCAL.equalsIgnoreCase(mode);
             this.uri = writerSliceConfig.getString(KeyConstant.URI);
-            this.localMode = StringUtils.isNotBlank(uri);
             if (!localMode) {
                 this.client = new LanceDbClient(writerSliceConfig);
             }

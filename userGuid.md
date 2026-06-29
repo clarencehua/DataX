@@ -9,7 +9,7 @@ DataX本身作为数据同步框架，将不同数据源的同步抽象为从源
 # System Requirements
 
 - Linux
-- [JDK(1.8以上，推荐1.8) ](http://www.oracle.com/technetwork/cn/java/javase/downloads/index.html) 
+- [JDK(17以上，推荐17) ](http://www.oracle.com/technetwork/cn/java/javase/downloads/index.html) 
 - [Python(2或3都可以) ](https://www.python.org/downloads/)
 - [Apache Maven 3.x](https://maven.apache.org/download.cgi) (Compile DataX)
 

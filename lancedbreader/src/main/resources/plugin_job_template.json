@@ -1,6 +1,12 @@
 {
     "name": "lancedbreader",
     "parameter": {
+        "_comment_mode": "cloud=LanceDB Cloud, local=本地文件或 S3（Apache Arrow IPC File, 非 LanceDB .lance 格式）",
+        "mode": "cloud",
+        "_comment_uri": "local 模式：文件路径 或 s3://bucket/key（需要同时配置 s3 子对象）",
+        "uri": "",
+        "_comment_s3": "local 模式且 uri 以 s3:// 开头时必填：{endpoint, bucket, accessKey, secretKey, region(可选)}",
+        "s3": {},
         "apiKey": "",
         "endpoint": "",
         "database": "",

@@ -11,11 +11,21 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.IOException;
+import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
+import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
+import software.amazon.awssdk.core.sync.ResponseTransformer;
+import software.amazon.awssdk.regions.Region;
+import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.S3Configuration;
+import software.amazon.awssdk.services.s3.model.GetObjectRequest;
+import software.amazon.awssdk.services.s3.model.NoSuchKeyException;
 
 @Slf4j
 public class LanceDbReader extends Reader {
@@ -26,18 +36,15 @@ public class LanceDbReader extends Reader {
         @Override
         public void init() {
             this.originalConfig = super.getPluginJobConf();
-            String uri = originalConfig.getString(KeyConstant.URI);
-            this.localMode = StringUtils.isNotBlank(uri);
+            String mode = originalConfig.getString(KeyConstant.MODE, KeyConstant.MODE_CLOUD);
+            this.localMode = KeyConstant.MODE_LOCAL.equalsIgnoreCase(mode);
             if (localMode) {
-                if (StringUtils.isBlank(uri)) {
-                    throw DataXException.asDataXException(LanceDbReaderErrorCode.REQUIRED_VALUE,
-                            "uri is required in local mode");
-                }
+                originalConfig.getNecessaryValue(KeyConstant.URI, LanceDbReaderErrorCode.REQUIRED_VALUE);
             } else {
                 originalConfig.getNecessaryValue(KeyConstant.API_KEY, LanceDbReaderErrorCode.REQUIRED_VALUE);
                 originalConfig.getNecessaryValue(KeyConstant.DATABASE, LanceDbReaderErrorCode.REQUIRED_VALUE);
+                originalConfig.getNecessaryValue(KeyConstant.TABLE, LanceDbReaderErrorCode.REQUIRED_VALUE);
             }
-            originalConfig.getNecessaryValue(KeyConstant.TABLE, LanceDbReaderErrorCode.REQUIRED_VALUE);
             originalConfig.getNecessaryValue(KeyConstant.COLUMN, LanceDbReaderErrorCode.REQUIRED_VALUE);
         }
 
@@ -45,6 +52,10 @@ public class LanceDbReader extends Reader {
         public void prepare() {
             if (localMode) {
                 String uri = originalConfig.getString(KeyConstant.URI);
+                if (uri != null && uri.startsWith(KeyConstant.SCHEME_S3)) {
+                    log.info("s3 mode, will read from: {}", uri);
+                    return;
+                }
                 if (!Files.exists(Paths.get(uri))) {
                     throw DataXException.asDataXException(LanceDbReaderErrorCode.LANCEDB_QUERY,
                             "local file does not exist: " + uri);
@@ -92,14 +103,43 @@ public class LanceDbReader extends Reader {
         private List<String> columnNames;
         private int batchSize;
         private boolean localMode = false;
+        private boolean s3Mode = false;
         private String uri;
+        private S3Client s3Client;
+        private String s3Bucket;
+        private String s3Key;
 
         @Override
         public void init() {
             log.info("Initializing LanceDB reader");
             Configuration readerSliceConfig = this.getPluginJobConf();
+            String mode = readerSliceConfig.getString(KeyConstant.MODE, KeyConstant.MODE_CLOUD);
+            this.localMode = KeyConstant.MODE_LOCAL.equalsIgnoreCase(mode);
             this.uri = readerSliceConfig.getString(KeyConstant.URI);
-            this.localMode = StringUtils.isNotBlank(uri);
+            this.s3Mode = localMode && uri != null && uri.startsWith(KeyConstant.SCHEME_S3);
+            if (s3Mode) {
+                Configuration s3Conf = readerSliceConfig.getConfiguration(KeyConstant.S3);
+                // parse bucket and key from s3://bucket/key URI
+                String path = uri.substring(KeyConstant.SCHEME_S3.length());
+                int slashIdx = path.indexOf('/');
+                if (slashIdx > 0) {
+                    this.s3Bucket = path.substring(0, slashIdx);
+                    this.s3Key = path.substring(slashIdx + 1);
+                } else {
+                    this.s3Bucket = path;
+                    this.s3Key = "";
+                }
+                // allow explicit override from s3 config
+                String cfgBucket = s3Conf.getString(KeyConstant.S3_BUCKET);
+                if (cfgBucket != null && !cfgBucket.isEmpty()) {
+                    this.s3Bucket = cfgBucket;
+                }
+                this.s3Client = buildS3Client(s3Conf);
+            } else {
+                this.s3Bucket = null;
+                this.s3Key = null;
+                this.s3Client = null;
+            }
             if (!localMode) {
                 this.client = new LanceDbClient(readerSliceConfig);
             }
@@ -120,6 +160,24 @@ public class LanceDbReader extends Reader {
         @Override
         public void startRead(RecordSender recordSender) {
             if (localMode) {
+                if (s3Mode) {
+                    log.info("reading from s3://{}/{}", s3Bucket, s3Key);
+                    try {
+                        GetObjectRequest getReq = GetObjectRequest.builder()
+                                .bucket(s3Bucket)
+                                .key(s3Key)
+                                .build();
+                        byte[] data = s3Client.getObject(getReq, ResponseTransformer.toBytes()).asByteArray();
+                        ArrowDataParser.parseAndSend(data, columns, recordSender);
+                    } catch (NoSuchKeyException e) {
+                        throw DataXException.asDataXException(LanceDbReaderErrorCode.LANCEDB_QUERY,
+                                "s3 object not found: s3://" + s3Bucket + "/" + s3Key, e);
+                    } catch (Exception e) {
+                        throw DataXException.asDataXException(LanceDbReaderErrorCode.LANCEDB_QUERY,
+                                "failed to read from s3: " + e.getMessage(), e);
+                    }
+                    return;
+                }
                 log.info("reading from local file: {}", uri);
                 try {
                     byte[] data = Files.readAllBytes(Paths.get(uri));
@@ -144,6 +202,27 @@ public class LanceDbReader extends Reader {
         public void destroy() {
             if (this.client != null) {
                 this.client.close();
+            }
+            if (this.s3Client != null) {
+                try { this.s3Client.close(); } catch (Exception ignore) {}
+            }
+        }
+
+        private static S3Client buildS3Client(Configuration s3Conf) {
+            try {
+                String endpoint = s3Conf.getString(KeyConstant.S3_ENDPOINT);
+                String region = s3Conf.getString(KeyConstant.S3_REGION, "us-east-1");
+                String accessKey = s3Conf.getString(KeyConstant.S3_ACCESS_KEY);
+                String secretKey = s3Conf.getString(KeyConstant.S3_SECRET_KEY);
+                return S3Client.builder()
+                        .endpointOverride(new URI(endpoint))
+                        .region(Region.of(region))
+                        .serviceConfiguration(S3Configuration.builder().pathStyleAccessEnabled(true).build())
+                        .credentialsProvider(StaticCredentialsProvider.create(
+                                AwsBasicCredentials.create(accessKey, secretKey)))
+                        .build();
+            } catch (Exception e) {
+                throw new RuntimeException("Failed to build S3 client", e);
             }
         }
     }

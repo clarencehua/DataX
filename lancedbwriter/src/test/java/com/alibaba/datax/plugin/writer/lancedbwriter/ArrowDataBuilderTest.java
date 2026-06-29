@@ -6,18 +6,44 @@ import com.alibaba.datax.core.transport.record.DefaultRecord;
 import org.apache.arrow.memory.BufferAllocator;
 import org.apache.arrow.memory.RootAllocator;
 import org.apache.arrow.vector.*;
-import org.apache.arrow.vector.ipc.ArrowStreamReader;
+import org.apache.arrow.vector.ipc.ArrowFileReader;
 import org.apache.arrow.vector.types.pojo.Field;
 import org.apache.arrow.vector.types.pojo.Schema;
 import org.junit.Test;
 
-import java.io.ByteArrayInputStream;
+import java.nio.ByteBuffer;
+import java.nio.channels.SeekableByteChannel;
 import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.Assert.*;
 
 public class ArrowDataBuilderTest {
+
+    private static class ByteArraySeekableChannel implements SeekableByteChannel {
+        private final byte[] data;
+        private long position;
+        private boolean open = true;
+
+        ByteArraySeekableChannel(byte[] data) { this.data = data; }
+
+        @Override public int read(ByteBuffer dst) {
+            int remaining = dst.remaining();
+            int available = (int) (data.length - position);
+            if (available <= 0) return -1;
+            int toRead = Math.min(remaining, available);
+            dst.put(data, (int) position, toRead);
+            position += toRead;
+            return toRead;
+        }
+        @Override public int write(ByteBuffer src) { throw new UnsupportedOperationException(); }
+        @Override public long position() { return position; }
+        @Override public SeekableByteChannel position(long newPosition) { position = newPosition; return this; }
+        @Override public long size() { return data.length; }
+        @Override public SeekableByteChannel truncate(long size) { throw new UnsupportedOperationException(); }
+        @Override public boolean isOpen() { return open; }
+        @Override public void close() { open = false; }
+    }
 
     private List<LanceDbColumn> createTestColumns() {
         List<LanceDbColumn> columns = new ArrayList<>();
@@ -94,10 +120,10 @@ public class ArrowDataBuilderTest {
         assertTrue("arrow data should have content", arrowData.length > 0);
 
         try (BufferAllocator allocator = new RootAllocator();
-             ArrowStreamReader reader = new ArrowStreamReader(
-                     new ByteArrayInputStream(arrowData), allocator)) {
+             ArrowFileReader reader = new ArrowFileReader(
+                     new ByteArraySeekableChannel(arrowData), allocator)) {
 
-            reader.loadNextBatch();
+            reader.loadRecordBatch(reader.getRecordBlocks().get(0));
             VectorSchemaRoot root = reader.getVectorSchemaRoot();
             assertEquals(3, root.getRowCount());
 
@@ -143,10 +169,10 @@ public class ArrowDataBuilderTest {
         assertNotNull(arrowData);
 
         try (BufferAllocator allocator = new RootAllocator();
-             ArrowStreamReader reader = new ArrowStreamReader(
-                     new ByteArrayInputStream(arrowData), allocator)) {
+             ArrowFileReader reader = new ArrowFileReader(
+                     new ByteArraySeekableChannel(arrowData), allocator)) {
 
-            reader.loadNextBatch();
+            reader.loadRecordBatch(reader.getRecordBlocks().get(0));
             VectorSchemaRoot root = reader.getVectorSchemaRoot();
             assertEquals(1, root.getRowCount());
 
@@ -207,10 +233,10 @@ public class ArrowDataBuilderTest {
         byte[] arrowData = ArrowDataBuilder.buildArrow(columns, records);
 
         try (BufferAllocator allocator = new RootAllocator();
-             ArrowStreamReader reader = new ArrowStreamReader(
-                     new ByteArrayInputStream(arrowData), allocator)) {
+             ArrowFileReader reader = new ArrowFileReader(
+                     new ByteArraySeekableChannel(arrowData), allocator)) {
 
-            reader.loadNextBatch();
+            reader.loadRecordBatch(reader.getRecordBlocks().get(0));
             VectorSchemaRoot root = reader.getVectorSchemaRoot();
             assertEquals(1, root.getRowCount());
 
@@ -265,10 +291,10 @@ public class ArrowDataBuilderTest {
         byte[] arrowData = ArrowDataBuilder.buildArrow(columns, records);
 
         try (BufferAllocator allocator = new RootAllocator();
-             ArrowStreamReader reader = new ArrowStreamReader(
-                     new ByteArrayInputStream(arrowData), allocator)) {
+             ArrowFileReader reader = new ArrowFileReader(
+                     new ByteArraySeekableChannel(arrowData), allocator)) {
 
-            reader.loadNextBatch();
+            reader.loadRecordBatch(reader.getRecordBlocks().get(0));
             VectorSchemaRoot root = reader.getVectorSchemaRoot();
             assertEquals(1, root.getRowCount());
 
@@ -339,8 +365,8 @@ public class ArrowDataBuilderTest {
 
     private Schema readArrowSchema(byte[] arrowData) {
         try (BufferAllocator allocator = new RootAllocator();
-             ArrowStreamReader reader = new ArrowStreamReader(
-                     new ByteArrayInputStream(arrowData), allocator)) {
+             ArrowFileReader reader = new ArrowFileReader(
+                     new ByteArraySeekableChannel(arrowData), allocator)) {
             return reader.getVectorSchemaRoot().getSchema();
         } catch (Exception e) {
             throw new RuntimeException("Failed to read Arrow schema", e);
