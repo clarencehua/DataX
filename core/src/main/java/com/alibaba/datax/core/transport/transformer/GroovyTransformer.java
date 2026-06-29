@@ -7,6 +7,7 @@ import groovy.lang.GroovyClassLoader;
 import org.apache.commons.lang3.StringUtils;
 import org.codehaus.groovy.control.CompilationFailedException;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
 import java.util.List;
 
@@ -54,7 +55,7 @@ public class GroovyTransformer extends Transformer {
         }
 
         try {
-            Object t = groovyClass.newInstance();
+            Object t = groovyClass.getDeclaredConstructor().newInstance();
             if (!(t instanceof Transformer)) {
                 throw DataXException.asDataXException(TransformerErrorCode.TRANSFORMER_GROOVY_INIT_EXCEPTION, "datax bug! contact askdatax");
             }

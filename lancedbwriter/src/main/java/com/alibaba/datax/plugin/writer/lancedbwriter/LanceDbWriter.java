@@ -7,6 +7,7 @@ import com.alibaba.datax.common.spi.Writer;
 import com.alibaba.datax.common.util.Configuration;
 
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,18 +16,32 @@ import java.util.List;
 public class LanceDbWriter extends Writer {
     public static class Job extends Writer.Job {
         private Configuration originalConfig = null;
+        private boolean localMode = false;
 
         @Override
         public void init() {
             this.originalConfig = super.getPluginJobConf();
-            originalConfig.getNecessaryValue(KeyConstant.API_KEY, LanceDbWriterErrorCode.REQUIRED_VALUE);
-            originalConfig.getNecessaryValue(KeyConstant.DATABASE, LanceDbWriterErrorCode.REQUIRED_VALUE);
+            String uri = originalConfig.getString(KeyConstant.URI);
+            this.localMode = StringUtils.isNotBlank(uri);
+            if (localMode) {
+                if (StringUtils.isBlank(uri)) {
+                    throw DataXException.asDataXException(LanceDbWriterErrorCode.REQUIRED_VALUE,
+                            "uri is required in local mode");
+                }
+            } else {
+                originalConfig.getNecessaryValue(KeyConstant.API_KEY, LanceDbWriterErrorCode.REQUIRED_VALUE);
+                originalConfig.getNecessaryValue(KeyConstant.DATABASE, LanceDbWriterErrorCode.REQUIRED_VALUE);
+            }
             originalConfig.getNecessaryValue(KeyConstant.TABLE, LanceDbWriterErrorCode.REQUIRED_VALUE);
             originalConfig.getNecessaryValue(KeyConstant.COLUMN, LanceDbWriterErrorCode.REQUIRED_VALUE);
         }
 
         @Override
         public void prepare() {
+            if (localMode) {
+                log.info("local mode, will write to: {}", originalConfig.getString(KeyConstant.URI));
+                return;
+            }
             LanceDbClient client = new LanceDbClient(originalConfig);
             try {
                 LanceDbCreateTable createTable = new LanceDbCreateTable(originalConfig);
@@ -57,12 +72,18 @@ public class LanceDbWriter extends Writer {
 
         private LanceDbBufferWriter bufferWriter;
         private LanceDbClient client;
+        private boolean localMode = false;
+        private String uri;
 
         @Override
         public void init() {
             log.info("Initializing LanceDB writer");
             Configuration writerSliceConfig = this.getPluginJobConf();
-            this.client = new LanceDbClient(writerSliceConfig);
+            this.uri = writerSliceConfig.getString(KeyConstant.URI);
+            this.localMode = StringUtils.isNotBlank(uri);
+            if (!localMode) {
+                this.client = new LanceDbClient(writerSliceConfig);
+            }
             this.bufferWriter = new LanceDbBufferWriter(this.client, writerSliceConfig);
             log.info("LanceDB writer initialized");
         }

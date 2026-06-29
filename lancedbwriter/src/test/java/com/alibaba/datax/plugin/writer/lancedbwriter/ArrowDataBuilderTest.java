@@ -1,5 +1,6 @@
 package com.alibaba.datax.plugin.writer.lancedbwriter;
 
+import com.alibaba.datax.common.element.Record;
 import com.alibaba.datax.common.element.*;
 import com.alibaba.datax.core.transport.record.DefaultRecord;
 import org.apache.arrow.memory.BufferAllocator;

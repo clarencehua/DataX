@@ -107,7 +107,7 @@ public class StreamReader2Neo4jWriterTest {
         Result run = neo4jSession.run(query);
         int count = 0;
         while (run.hasNext()) {
-            Record record = run.next();
+            org.neo4j.driver.Record record = run.next();
             Node node = record.get("n").asNode();
             if (node.hasLabel("StreamReader")) {
                 count++;

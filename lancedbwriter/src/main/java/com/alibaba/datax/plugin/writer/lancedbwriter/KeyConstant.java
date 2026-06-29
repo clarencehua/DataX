@@ -11,4 +11,5 @@ public class KeyConstant {
     public static final String SCHEMA_CREATE_MODE = "schemaCreateMode";
     public static final String WRITE_MODE = "writeMode";
     public static final String REGION = "region";
+    public static final String URI = "uri";
 }

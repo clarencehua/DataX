@@ -8,7 +8,7 @@ import org.apache.arrow.memory.RootAllocator;
 import org.apache.arrow.vector.*;
 import org.apache.arrow.vector.complex.FixedSizeListVector;
 import org.apache.arrow.vector.complex.impl.UnionFixedSizeListWriter;
-import org.apache.arrow.vector.ipc.ArrowStreamWriter;
+import org.apache.arrow.vector.ipc.ArrowFileWriter;
 import org.apache.arrow.vector.types.FloatingPointPrecision;
 import org.apache.arrow.vector.types.pojo.ArrowType;
 import org.apache.arrow.vector.types.pojo.Field;
@@ -198,7 +198,7 @@ public class ArrowDataBuilder {
             }
 
             ByteArrayOutputStream out = new ByteArrayOutputStream();
-            try (ArrowStreamWriter writer = new ArrowStreamWriter(root, null, Channels.newChannel(out))) {
+            try (ArrowFileWriter writer = new ArrowFileWriter(root, null, Channels.newChannel(out))) {
                 writer.start();
                 writer.writeBatch();
                 writer.end();

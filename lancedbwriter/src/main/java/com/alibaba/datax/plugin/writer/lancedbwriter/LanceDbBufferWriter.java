@@ -7,7 +7,13 @@ import com.alibaba.datax.plugin.writer.lancedbwriter.enums.WriteModeEnum;
 import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.TypeReference;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -21,12 +27,17 @@ public class LanceDbBufferWriter {
     private final List<LanceDbColumn> columns;
     private final WriteModeEnum writeMode;
     private final String onColumn;
+    private final boolean localMode;
+    private final String uri;
+    private boolean firstCommit = true;
 
     public LanceDbBufferWriter(LanceDbClient client, Configuration writerSliceConfig) {
         this.client = client;
         String table = writerSliceConfig.getString(KeyConstant.TABLE);
         String namespace = writerSliceConfig.getString(KeyConstant.NAMESPACE);
-        this.tableId = client.buildTableId(namespace, table);
+        this.uri = writerSliceConfig.getString(KeyConstant.URI);
+        this.localMode = StringUtils.isNotBlank(uri) && client == null;
+        this.tableId = client != null ? client.buildTableId(namespace, table) : null;
         this.batchSize = writerSliceConfig.getInt(KeyConstant.BATCH_SIZE, 100);
         this.dataCache = new ArrayList<>(batchSize);
         this.columns = JSON.parseObject(
@@ -64,12 +75,24 @@ public class LanceDbBufferWriter {
         try {
             byte[] arrowData = ArrowDataBuilder.buildArrow(columns, dataCache);
 
-            if (writeMode == WriteModeEnum.UPSERT && onColumn != null) {
-                log.info("merge inserting {} records into {}", dataCache.size(), tableId);
-                client.mergeInsert(tableId, onColumn, arrowData);
+            if (localMode) {
+                Path filePath = Paths.get(uri);
+                if (firstCommit) {
+                    Files.createDirectories(filePath.getParent());
+                    Files.write(filePath, arrowData, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
+                    firstCommit = false;
+                    log.info("wrote {} records to local file {}", dataCache.size(), uri);
+                } else {
+                    log.warn("local mode only supports single batch write, appending skipped");
+                }
             } else {
-                log.info("inserting {} records into {}", dataCache.size(), tableId);
-                client.insert(tableId, arrowData);
+                if (writeMode == WriteModeEnum.UPSERT && onColumn != null) {
+                    log.info("merge inserting {} records into {}", dataCache.size(), tableId);
+                    client.mergeInsert(tableId, onColumn, arrowData);
+                } else {
+                    log.info("inserting {} records into {}", dataCache.size(), tableId);
+                    client.insert(tableId, arrowData);
+                }
             }
         } catch (Exception e) {
             log.error("commit failed for {} records", dataCache.size(), e);

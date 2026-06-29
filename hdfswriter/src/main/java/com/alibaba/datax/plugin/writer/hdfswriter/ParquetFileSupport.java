@@ -1,5 +1,6 @@
 package com.alibaba.datax.plugin.writer.hdfswriter;
 
+import com.alibaba.datax.common.element.Record;
 import com.alibaba.datax.common.element.*;
 import com.alibaba.datax.common.plugin.TaskPluginCollector;
 import com.alibaba.datax.common.util.LimitLogger;

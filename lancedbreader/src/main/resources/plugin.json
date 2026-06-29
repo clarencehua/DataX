@@ -1,0 +1,6 @@
+{
+    "name": "lancedbreader",
+    "class": "com.alibaba.datax.plugin.reader.lancedbreader.LanceDbReader",
+    "description": "useScene: prod. mechanism: via lancedb rest api connect lancedb read data concurrent.",
+    "developer": "opencode"
+}

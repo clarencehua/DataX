@@ -13,7 +13,6 @@ import org.apache.kudu.client.*;
 import org.apache.kudu.shaded.org.checkerframework.checker.units.qual.K;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import sun.rmi.runtime.Log;
 
 import java.nio.charset.Charset;
 import java.util.*;
@@ -148,7 +147,7 @@ public class Kudu11xHelper {
                 TimeUnit.SECONDS,
                 new SynchronousQueue<Runnable>(),
                 new ThreadFactory() {
-                    private final ThreadGroup group = System.getSecurityManager() == null ? Thread.currentThread().getThreadGroup() : System.getSecurityManager().getThreadGroup();
+                    private final ThreadGroup group = Thread.currentThread().getThreadGroup();
                     private final AtomicInteger threadNumber = new AtomicInteger(1);
 
                     @Override

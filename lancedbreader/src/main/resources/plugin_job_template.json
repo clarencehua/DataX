@@ -1,0 +1,13 @@
+{
+    "name": "lancedbreader",
+    "parameter": {
+        "apiKey": "",
+        "endpoint": "",
+        "database": "",
+        "table": "",
+        "namespace": "",
+        "column": [],
+        "filter": "",
+        "batchSize": 10000
+    }
+}

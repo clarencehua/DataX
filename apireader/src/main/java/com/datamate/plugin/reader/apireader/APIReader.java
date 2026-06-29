@@ -1,5 +1,6 @@
 package com.datamate.plugin.reader.apireader;
 
+import com.alibaba.datax.common.element.Record;
 import com.alibaba.datax.common.element.*;
 import com.alibaba.datax.common.plugin.RecordSender;
 import com.alibaba.datax.common.spi.Reader;
