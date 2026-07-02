@@ -210,6 +210,8 @@ public class S3Writer extends Writer {
 
             if ("download".equalsIgnoreCase(this.mode)) {
                 this.destPath = this.jobConfig.getString("destPath");
+            } else if ("binary".equalsIgnoreCase(this.mode)) {
+                this.objectPrefix = this.jobConfig.getString("object");
             } else {
                 this.objectPrefix = this.jobConfig.getString("object");
                 this.fieldDelimiter = this.jobConfig.getString("fieldDelimiter", DEFAULT_FIELD_DELIMITER);
@@ -245,6 +247,8 @@ public class S3Writer extends Writer {
         public void startWrite(RecordReceiver lineReceiver) {
             if ("download".equalsIgnoreCase(this.mode)) {
                 startWriteDownload(lineReceiver);
+            } else if ("binary".equalsIgnoreCase(this.mode)) {
+                startWriteBinary(lineReceiver);
             } else {
                 startWriteUpload(lineReceiver);
             }
@@ -299,6 +303,69 @@ public class S3Writer extends Writer {
                 }
             } catch (Exception e) {
                 LOG.warn("Failed to download object {}: {}", key, e.getMessage(), e);
+            }
+        }
+
+        /**
+         * 二进制上传模式
+         * Record 格式：
+         *   第0列 StringColumn：源对象 key（用于还原文件名）
+         *   第1列 BytesColumn ：文件二进制内容
+         * 目标对象 key = objectPrefix + 源文件名
+         */
+        private void startWriteBinary(RecordReceiver lineReceiver) {
+            Record record;
+            try {
+                while ((record = lineReceiver.getFromReader()) != null) {
+                    if (record.getColumnNumber() < 2) {
+                        LOG.warn("Skip record: binary mode expects at least 2 columns, got {}", record.getColumnNumber());
+                        continue;
+                    }
+                    Column keyCol = record.getColumn(0);
+                    Column contentCol = record.getColumn(1);
+                    if (keyCol == null || keyCol.getRawData() == null) {
+                        LOG.warn("Skip record: source key is null");
+                        continue;
+                    }
+                    String srcKey = keyCol.asString();
+                    if (contentCol == null || contentCol.getRawData() == null) {
+                        LOG.warn("Skip record: content is null for key {}", srcKey);
+                        continue;
+                    }
+                    byte[] bytes = contentCol.asBytes();
+                    if (bytes == null || bytes.length == 0) {
+                        LOG.warn("Skip record: empty content for key {}", srcKey);
+                        continue;
+                    }
+
+                    // 从源 key 提取文件名，拼接到 objectPrefix 后面
+                    String fileName = Paths.get(srcKey).getFileName().toString();
+                    String targetKey = objectPrefix;
+                    if (!targetKey.endsWith("/") && StringUtils.isNotBlank(targetKey)) {
+                        targetKey = targetKey + "/";
+                    }
+                    targetKey = targetKey + fileName;
+
+                    uploadBytes(targetKey, bytes);
+                }
+                LOG.info("S3 binary upload completed. objects written to bucket: {}", bucket);
+            } catch (Exception e) {
+                LOG.error("Error uploading binary to S3 compatible storage: {}", this.endpoint, e);
+                throw DataXException.asDataXException(CommonErrorCode.RUNTIME_ERROR, e);
+            }
+        }
+
+        private void uploadBytes(String objectKey, byte[] bytes) {
+            try {
+                PutObjectRequest putReq = PutObjectRequest.builder()
+                        .bucket(bucket)
+                        .key(objectKey)
+                        .build();
+                s3.putObject(putReq, RequestBody.fromBytes(bytes));
+                LOG.info("Uploaded object s3://{}/{} ({} bytes)", bucket, objectKey, bytes.length);
+            } catch (Exception e) {
+                LOG.error("Failed to upload object s3://{}/{}", bucket, objectKey, e);
+                throw DataXException.asDataXException(CommonErrorCode.RUNTIME_ERROR, e);
             }
         }
 

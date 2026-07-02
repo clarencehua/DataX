@@ -1,5 +1,6 @@
 package com.datamate.plugin.reader.s3reader;
 
+import java.io.ByteArrayOutputStream;
 import java.net.URI;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -9,6 +10,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import com.alibaba.datax.common.element.BytesColumn;
 import com.alibaba.datax.common.element.Record;
 import com.alibaba.datax.common.element.StringColumn;
 import com.alibaba.datax.common.exception.CommonErrorCode;
@@ -23,12 +25,15 @@ import org.slf4j.LoggerFactory;
 
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
+import software.amazon.awssdk.core.ResponseInputStream;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.S3Configuration;
+import software.amazon.awssdk.services.s3.model.GetObjectRequest;
+import software.amazon.awssdk.services.s3.model.GetObjectResponse;
 import software.amazon.awssdk.services.s3.model.ListObjectsV2Request;
 import software.amazon.awssdk.services.s3.model.ListObjectsV2Response;
 import software.amazon.awssdk.services.s3.model.S3Object;
-import software.amazon.awssdk.services.s3.S3Configuration;
 
 /**
  * S3兼容对象存储读取器
@@ -84,6 +89,7 @@ public class S3Reader extends Reader {
     public static class Task extends Reader.Task {
 
         private Configuration jobConfig;
+        private String mode;
         private Set<String> fileType;
         private String endpoint;
         private String accessKey;
@@ -97,6 +103,7 @@ public class S3Reader extends Reader {
         @Override
         public void init() {
             this.jobConfig = super.getPluginJobConf();
+            this.mode = this.jobConfig.getString("mode", "list");
             this.fileType = new HashSet<>(this.jobConfig.getList("fileType", Collections.emptyList(), String.class));
             this.endpoint = this.jobConfig.getString("endpoint");
             this.accessKey = this.jobConfig.getString("accessKey");
@@ -115,15 +122,56 @@ public class S3Reader extends Reader {
                 List<String> files = listFiles().stream()
                     .filter(file -> fileType.isEmpty() || fileType.contains(getFileSuffix(file)))
                     .collect(Collectors.toList());
-                files.forEach(filePath -> {
-                    Record record = recordSender.createRecord();
-                    record.addColumn(new StringColumn(filePath));
-                    recordSender.sendToWriter(record);
-                });
-                this.jobConfig.set("columnNumber", 1);
+
+                if ("binary".equalsIgnoreCase(this.mode)) {
+                    // 二进制模式：下载对象字节流，用 BytesColumn 传递文件内容
+                    files.forEach(key -> {
+                        byte[] content = readObjectBytes(key);
+                        if (content == null) {
+                            return;
+                        }
+                        Record record = recordSender.createRecord();
+                        // 第0列：源对象 key（用于 writer 端还原文件名）
+                        record.addColumn(new StringColumn(key));
+                        // 第1列：文件二进制内容
+                        record.addColumn(new BytesColumn(content));
+                        recordSender.sendToWriter(record);
+                    });
+                    this.jobConfig.set("columnNumber", 2);
+                } else {
+                    // 默认 list 模式：只输出对象 key
+                    files.forEach(filePath -> {
+                        Record record = recordSender.createRecord();
+                        record.addColumn(new StringColumn(filePath));
+                        recordSender.sendToWriter(record);
+                    });
+                    this.jobConfig.set("columnNumber", 1);
+                }
             } catch (Exception e) {
                 LOG.error("Error reading files from S3 compatible storage: {}", this.endpoint, e);
                 throw new RuntimeException(e);
+            }
+        }
+
+        /**
+         * 下载 S3 对象的完整字节内容
+         */
+        private byte[] readObjectBytes(String key) {
+            GetObjectRequest getReq = GetObjectRequest.builder()
+                    .bucket(bucket)
+                    .key(key)
+                    .build();
+            try (ResponseInputStream<GetObjectResponse> in = s3.getObject(getReq)) {
+                ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                byte[] buffer = new byte[8192];
+                int len;
+                while ((len = in.read(buffer)) != -1) {
+                    baos.write(buffer, 0, len);
+                }
+                return baos.toByteArray();
+            } catch (Exception e) {
+                LOG.warn("Failed to read object {} from bucket {}: {}", key, bucket, e.getMessage(), e);
+                return null;
             }
         }
 
